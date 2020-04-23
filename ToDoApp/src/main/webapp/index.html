@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <h1>Just Do It</h1>
+<p>Welcome to a dynamic to do list, that helps you just do it!</p>
+<h3>Task</h3>
+<input id="taskInpt" type="text" placeholder="Change Oil">
+<input id="tskPri" type="text" placeholder="High">
+<button id="addTsk">Add Task</button>
+
+<h3>To Do List</h3>
+<button id="allTsk">View To Do List</button>
+<table id="taskTD">
+   <thead><tr><th>Description</th><th>Priority</th><th>Done?</th></tr></thead> 
+    
+
+</table>
+
+
+
+</body>
+<script>
+    document.getElementById("allTsk").addEventListener("click", getAllTasks);
+    document.getElementById("addTsk").addEventListener("click", addTask);
+
+    async function addTask(){
+        let task ={
+            tId:0,
+            complete:false
+        }
+
+        task.descri = document.getElementById("taskInpt").value
+        task.priority = document.getElementById("tskPri").value
+
+        let settings = {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body:JSON.stringify(task)
+        }
+
+        let httpResponse = await fetch("http://localhost:8080/ToDoApp/api/addtask", settings)
+
+        console.log(httpResponse)
+    }
+
+    async function getAllTasks(){
+        let httpResponse = await fetch("http://localhost:8080/ToDoApp/api/tasks")
+        let tasks = await httpResponse.json();
+
+        let td = document.getElementById("taskTD");
+        for(task of tasks) {td.innerHTML = td.innerHTML + `<tr><td>${task.descri}</td><td>${task.priority}</td><td>${task.complete}</td><td>
+         <button id="mark"  tid=${task.tId} desc="${task.descri}" priority= ${task.priority} onclick="approve()">Mark Complete</button> </td>  </tr>`;}
+        /*<button id="test" tid="fire">hello</button> 
+        I so to grab tid I had to use this 
+        console.log(document.getElementById("test").getAttribute("tid")) */
+    }
+
+
+
+    async function approve(element){
+        let m = document.getElementById("mark");
+        let task = {};
+        task.tId = m.getAttribute("tid");
+        task.descri = m.getAttribute("desc");
+        task.isComplete = true;
+        task.priority = m.getAttribute("priority");
+        console.log(task)
+        //console.log(element)
+        let settings = {
+            method:'POST',
+            headers:{'Content-Type':'application/json'},
+            body: JSON.stringify(task)
+        }
+
+        let httpResponse = await fetch("http://localhost:8080/ToDoApp/api/updatetask", settings); 
+    
+        console.log(httpResponse)
+
+    }
+
+
+
+
+
+</script>
+</html>
+
